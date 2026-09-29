@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Flasky - Chatbot{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Chatbot</h1>
+    <p>Signed in as {{ name }}. Try "My name is Alice." and then "What is my name?"</p>
+</div>
+
+<div id="chat-log" class="well" style="height: 300px; overflow-y: auto;"></div>
+
+<form id="chat-form" class="form-inline">
+    <input type="text" id="message" class="form-control" placeholder="Type a message" autocomplete="off" required>
+    <button type="submit" class="btn btn-primary">Send</button>
+    <a href="{{ url_for('logout') }}" class="btn btn-default">Logout</a>
+</form>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+function addLine(who, text) {
+    var line = document.createElement('p');
+    var label = document.createElement('strong');
+    label.textContent = who + ': ';
+    line.appendChild(label);
+    line.appendChild(document.createTextNode(text));
+    var log = document.getElementById('chat-log');
+    log.appendChild(line);
+    log.scrollTop = log.scrollHeight;
+}
+
+document.getElementById('chat-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+    var input = document.getElementById('message');
+    var message = input.value;
+    if (!message.trim()) {
+        return;
+    }
+    addLine('You', message);
+    input.value = '';
+    fetch('{{ url_for("chat") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: message})
+    })
+        .then(function (response) { return response.json(); })
+        .then(function (data) { addLine('Bot', data.reply); })
+        .catch(function () { addLine('Bot', 'Sorry, something went wrong.'); });
+});
+</script>
+{% endblock %}
