@@ -2,6 +2,8 @@
 
 This repo is a clone of https://github.com/miguelgrinberg/flasky  
 
+![alt text](image.png)
+
 Flasky
 ======
 
